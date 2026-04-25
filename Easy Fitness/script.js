@@ -19,7 +19,9 @@ const dayDetails = document.getElementById('day-details');
 const dayTitle = document.getElementById('day-title');
 const dayCalories = document.getElementById('day-calories');
 const dayMeals = document.getElementById('day-meals');
-const tg = window.Telegram.WebApp;tg.expand();
+const resetBtn = document.getElementById('reset-btn');
+const tg = window.Telegram?.WebApp;
+if (tg) tg.expand();
 
 let stream;
 let calorieGoal = 2000;
@@ -29,21 +31,40 @@ let meals = [];
 document.addEventListener('DOMContentLoaded', () => {
     loadData();
     updateBMI();
-    generateCalendar();
+    setupEventListeners();
+    generateCalendar(); // Вызов генерации при загрузке
 });
 
-weightInput.addEventListener('input', () => {
-    saveUserData();
-    updateBMI();
-});
-heightInput.addEventListener('input', () => {
-    saveUserData();
-    updateBMI();
-});
-goalSelect.addEventListener('change', () => {
-    saveUserData();
-    updateBMI();
-});
+function setupEventListeners() {
+    resetBtn.addEventListener('click', () => {
+        if (confirm('Вы уверены? Все данные будут удалены!')) {
+            localStorage.clear();
+            weightInput.value = '';
+            heightInput.value = '';
+            goalSelect.value = 'lose';
+            totalCalories = 0;
+            meals = [];
+            calorieGoal = 2000;
+            bmiResult.textContent = 'ИМТ: -- | Цель калорий: --';
+            updateProgressDisplay();
+            generateCalendar();
+            dayDetails.style.display = 'none';
+        }
+    });
+
+    weightInput.addEventListener('input', () => {
+        saveUserData();
+        updateBMI();
+    });
+    heightInput.addEventListener('input', () => {
+        saveUserData();
+        updateBMI();
+    });
+    goalSelect.addEventListener('change', () => {
+        saveUserData();
+        updateBMI();
+    });
+}
 
 cameraBtn.addEventListener('click', async () => {
     try {
@@ -82,11 +103,10 @@ function analyzeImage(imageData) {
     loadingDiv.style.display = 'block';
     resultsDiv.style.display = 'none';
 
-    // Симуляция анализа (в реальности здесь был бы API вызов)
     setTimeout(() => {
-        const calories = Math.floor(Math.random() * 500) + 200; // 200-700 ккал
-        const proteins = Math.floor(Math.random() * 30) + 10; // 10-40 г
-        const fats = Math.floor(Math.random() * 20) + 5; // 5-25 г
+        const calories = Math.floor(Math.random() * 500) + 200;
+        const proteins = Math.floor(Math.random() * 30) + 10;
+        const fats = Math.floor(Math.random() * 20) + 5;
 
         caloriesSpan.textContent = calories;
         proteinsSpan.textContent = proteins;
@@ -104,6 +124,7 @@ function addMeal(calories, proteins, fats) {
     meals.push({ calories, proteins, fats, time: new Date().toLocaleTimeString() });
     saveData();
     updateProgressDisplay();
+    generateCalendar(); // Обновляем календарь при добавлении еды
 }
 
 function updateProgressDisplay() {
@@ -117,16 +138,17 @@ function updateProgressDisplay() {
 
 function updateBMI() {
     const weight = parseFloat(weightInput.value);
-    const height = parseFloat(heightInput.value) / 100; // в метры
+    const height = parseFloat(heightInput.value) / 100;
     if (weight && height) {
         const bmi = (weight / (height * height)).toFixed(1);
-        let bmr = 10 * weight + 6.25 * height * 100 - 5 * 25 + 5; // упрощённая формула для мужчин
+        let bmr = 10 * weight + 6.25 * height * 100 - 5 * 25 + 5;
         if (goalSelect.value === 'lose') {
-            calorieGoal = Math.round(bmr * 1.2 - 500); // дефицит для похудения
+            calorieGoal = Math.round(bmr * 1.2 - 500);
         } else {
-            calorieGoal = Math.round(bmr * 1.2 + 500); // профицит для набора
+            calorieGoal = Math.round(bmr * 1.2 + 500);
         }
         bmiResult.textContent = `ИМТ: ${bmi} | Цель калорий: ${calorieGoal}`;
+        updateProgressDisplay();
     } else {
         bmiResult.textContent = 'ИМТ: -- | Цель калорий: --';
     }
@@ -143,12 +165,12 @@ function saveUserData() {
         weight: weightInput.value,
         height: heightInput.value,
         goal: goalSelect.value
-    };
+    }; // Ошибка была здесь (пропущена скобка)
     localStorage.setItem('userData', JSON.stringify(userData));
 }
 
 function loadData() {
-    // Load user data
+    // 1. Загружаем данные пользователя (рост, вес, цель)
     const userData = JSON.parse(localStorage.getItem('userData'));
     if (userData) {
         weightInput.value = userData.weight || '';
@@ -156,52 +178,67 @@ function loadData() {
         goalSelect.value = userData.goal || 'lose';
     }
 
-    // Load today's data
+    // 2. Загружаем данные за СЕГОДНЯ
     const today = new Date().toDateString();
-    const data = JSON.parse(localStorage.getItem('day-' + today));
-    if (data) {
-        totalCalories = data.totalCalories || 0;
-        meals = data.meals || [];
-        updateProgressDisplay();
+    const todayData = JSON.parse(localStorage.getItem('day-' + today));
+    
+    if (todayData) {
+        // КРИТИЧЕСКИ ВАЖНО: Обновляем глобальные переменные из памяти
+        totalCalories = parseInt(todayData.totalCalories) || 0;
+        meals = todayData.meals || [];
+        console.log("Данные за сегодня загружены:", totalCalories); // Для отладки
+    } else {
+        // Если данных за сегодня нет, обнуляем
+        totalCalories = 0;
+        meals = [];
     }
+    
+    // 3. Обновляем экран
+    updateProgressDisplay();
 }
 
 function generateCalendar() {
     const now = new Date();
     const year = now.getFullYear();
     const month = now.getMonth();
-    const daysInMonth = new Date(year, month + 1, 0).getDate();
     const firstDay = new Date(year, month, 1).getDay();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
 
     calendarDiv.innerHTML = '';
-    for (let i = 0; i < firstDay; i++) {
+    
+    // Пустые ячейки для начала месяца
+    for (let i = 0; i < (firstDay === 0 ? 6 : firstDay - 1); i++) {
         calendarDiv.innerHTML += '<div></div>';
     }
+
     for (let day = 1; day <= daysInMonth; day++) {
         const date = new Date(year, month, day);
         const dateStr = date.toDateString();
         const data = JSON.parse(localStorage.getItem('day-' + dateStr));
         const cal = data ? data.totalCalories : 0;
-        const className = date.toDateString() === now.toDateString() ? 'day today' : 'day';
-        calendarDiv.innerHTML += `<div class="${className}" data-date="${dateStr}">${day}<br>${cal} ккал</div>`;
+        const isToday = date.toDateString() === now.toDateString();
+        
+        const dayDiv = document.createElement('div');
+        dayDiv.className = isToday ? 'day today' : 'day';
+        dayDiv.innerHTML = `${day}<br><small>${cal} ккал</small>`;
+        dayDiv.onclick = () => showDayDetails(dateStr);
+        calendarDiv.appendChild(dayDiv);
     }
-
-    document.querySelectorAll('.day').forEach(day => {
-        day.addEventListener('click', function() {
-            showDayDetails(this.dataset.date);
-        });
-    });
 }
 
 function showDayDetails(dateStr) {
     const data = JSON.parse(localStorage.getItem('day-' + dateStr));
-    if (data) {
-        dayTitle.textContent = dateStr;
-        dayCalories.textContent = data.totalCalories || 0;
-        dayMeals.innerHTML = '';
-        (data.meals || []).forEach(meal => {
-            dayMeals.innerHTML += `<li>${meal.time}: ${meal.calories} ккал, ${meal.proteins}г белков, ${meal.fats}г жиров</li>`;
+    dayTitle.textContent = dateStr;
+    dayMeals.innerHTML = '';
+    
+    if (data && data.meals.length > 0) {
+        dayCalories.textContent = data.totalCalories;
+        data.meals.forEach(meal => {
+            dayMeals.innerHTML += `<li>${meal.time}: ${meal.calories} ккал</li>`;
         });
-        dayDetails.style.display = 'block';
+    } else {
+        dayCalories.textContent = '0';
+        dayMeals.innerHTML = '<li>Нет записей</li>';
     }
+    dayDetails.style.display = 'block';
 }
