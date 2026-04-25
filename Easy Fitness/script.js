@@ -19,6 +19,7 @@ const dayDetails = document.getElementById('day-details');
 const dayTitle = document.getElementById('day-title');
 const dayCalories = document.getElementById('day-calories');
 const dayMeals = document.getElementById('day-meals');
+const tg = window.Telegram.WebApp;tg.expand();
 
 let stream;
 let calorieGoal = 2000;
