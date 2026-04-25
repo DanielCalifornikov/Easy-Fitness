@@ -31,9 +31,18 @@ document.addEventListener('DOMContentLoaded', () => {
     generateCalendar();
 });
 
-weightInput.addEventListener('input', updateBMI);
-heightInput.addEventListener('input', updateBMI);
-goalSelect.addEventListener('change', updateBMI);
+weightInput.addEventListener('input', () => {
+    saveUserData();
+    updateBMI();
+});
+heightInput.addEventListener('input', () => {
+    saveUserData();
+    updateBMI();
+});
+goalSelect.addEventListener('change', () => {
+    saveUserData();
+    updateBMI();
+});
 
 cameraBtn.addEventListener('click', async () => {
     try {
@@ -124,17 +133,34 @@ function updateBMI() {
 
 function saveData() {
     const today = new Date().toDateString();
-    const data = { totalCalories, meals, goal: calorieGoal };
-    localStorage.setItem(today, JSON.stringify(data));
+    const data = { totalCalories, meals };
+    localStorage.setItem('day-' + today, JSON.stringify(data));
+}
+
+function saveUserData() {
+    const userData = {
+        weight: weightInput.value,
+        height: heightInput.value,
+        goal: goalSelect.value
+    };
+    localStorage.setItem('userData', JSON.stringify(userData));
 }
 
 function loadData() {
+    // Load user data
+    const userData = JSON.parse(localStorage.getItem('userData'));
+    if (userData) {
+        weightInput.value = userData.weight || '';
+        heightInput.value = userData.height || '';
+        goalSelect.value = userData.goal || 'lose';
+    }
+
+    // Load today's data
     const today = new Date().toDateString();
-    const data = JSON.parse(localStorage.getItem(today));
+    const data = JSON.parse(localStorage.getItem('day-' + today));
     if (data) {
         totalCalories = data.totalCalories || 0;
         meals = data.meals || [];
-        calorieGoal = data.goal || 2000;
         updateProgressDisplay();
     }
 }
@@ -153,7 +179,7 @@ function generateCalendar() {
     for (let day = 1; day <= daysInMonth; day++) {
         const date = new Date(year, month, day);
         const dateStr = date.toDateString();
-        const data = JSON.parse(localStorage.getItem(dateStr));
+        const data = JSON.parse(localStorage.getItem('day-' + dateStr));
         const cal = data ? data.totalCalories : 0;
         const className = date.toDateString() === now.toDateString() ? 'day today' : 'day';
         calendarDiv.innerHTML += `<div class="${className}" data-date="${dateStr}">${day}<br>${cal} ккал</div>`;
@@ -167,7 +193,7 @@ function generateCalendar() {
 }
 
 function showDayDetails(dateStr) {
-    const data = JSON.parse(localStorage.getItem(dateStr));
+    const data = JSON.parse(localStorage.getItem('day-' + dateStr));
     if (data) {
         dayTitle.textContent = dateStr;
         dayCalories.textContent = data.totalCalories || 0;
