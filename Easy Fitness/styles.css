@@ -1,0 +1,219 @@
+body {
+    font-family: 'Arial', sans-serif;
+    background: linear-gradient(135deg, #74b9ff, #0984e3);
+    color: #333;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+.container {
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    padding: 30px;
+    max-width: 600px;
+    width: 100%;
+    text-align: center;
+}
+
+h1 {
+    color: #0984e3;
+    margin-bottom: 10px;
+}
+
+p {
+    color: #636e72;
+    margin-bottom: 30px;
+}
+
+.input-section {
+    margin-bottom: 30px;
+}
+
+.btn {
+    background: #0984e3;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    margin: 0 10px;
+    transition: background 0.3s;
+}
+
+.btn:hover {
+    background: #74b9ff;
+}
+
+.primary {
+    background: #00b894;
+}
+
+.primary:hover {
+    background: #00cec9;
+}
+
+.secondary {
+    background: #fdcb6e;
+    color: #333;
+}
+
+.secondary:hover {
+    background: #ffeaa7;
+}
+
+.file-input {
+    display: none;
+}
+
+#video {
+    width: 100%;
+    max-width: 400px;
+    border-radius: 10px;
+    margin: 20px 0;
+    display: none;
+}
+
+.goal-section {
+    margin-bottom: 30px;
+}
+
+.bmi-inputs {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 10px;
+}
+
+#weight, #height {
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 16px;
+    margin: 0 5px;
+    width: 100px;
+}
+
+#goal-select {
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 16px;
+    margin: 10px;
+}
+
+#bmi-result {
+    color: #0984e3;
+    font-weight: bold;
+}
+
+.results {
+    margin-top: 30px;
+}
+
+.nutrients {
+    display: flex;
+    justify-content: space-around;
+    margin-bottom: 30px;
+}
+
+.nutrient {
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 10px;
+    flex: 1;
+    margin: 0 5px;
+}
+
+.label {
+    font-weight: bold;
+    color: #0984e3;
+}
+
+.value {
+    font-size: 24px;
+    color: #00b894;
+}
+
+.progress-section {
+    margin-top: 30px;
+}
+
+.circular-progress {
+    position: relative;
+    display: inline-block;
+}
+
+.progress-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    font-size: 14px;
+    color: #0984e3;
+}
+
+#progress-percent {
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.loading {
+    margin-top: 30px;
+}
+
+.loading p {
+    font-size: 18px;
+    color: #0984e3;
+}
+
+.history-section {
+    margin-top: 40px;
+    text-align: left;
+}
+
+#calendar {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 5px;
+    margin: 20px 0;
+}
+
+.day {
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    text-align: center;
+    cursor: pointer;
+    background: #f8f9fa;
+}
+
+.day:hover {
+    background: #e9ecef;
+}
+
+.day.today {
+    background: #0984e3;
+    color: white;
+}
+
+#day-details {
+    margin-top: 20px;
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 10px;
+}
+
+#day-meals {
+    list-style: none;
+    padding: 0;
+}
+
+#day-meals li {
+    padding: 5px 0;
+}
